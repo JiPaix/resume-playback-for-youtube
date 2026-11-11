@@ -25,6 +25,7 @@ const SCREENSHOTS = [
   ['docs/screenshots/1-hover-preview.png', 'Hover a thumbnail: YouTube plays a preview.'],
   ['docs/screenshots/2-continues-from-preview.png', 'Click it: the full video continues from the preview instead of restarting at 0:00.'],
   ['docs/screenshots/3-resumes-where-you-left-off.png', 'Close a video, open it again later: it continues where you left off.'],
+  ['docs/screenshots/4-settings.png', 'One setting, in the toolbar button: how long a position is kept (7 to 90 days).'],
 ];
 
 function jwt() {
