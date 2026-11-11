@@ -54,7 +54,8 @@ async function api(method, path, body) {
     if (res.status === 429 && attempt <= 5) {
       // "Request was throttled. Expected available in 57 seconds."
       const wait = Number((text.match(/available in (\d+) second/) || [])[1] || 60) + 2;
-      console.log(`rate limited, waiting ${wait} s`);
+      const until = new Date(Date.now() + wait * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      console.log(`AMO rate limit: waiting ${Math.ceil(wait / 60)} min (until ${until}), then continuing…`);
       await sleep(wait * 1000);
       continue;
     }
