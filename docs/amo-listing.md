@@ -33,6 +33,12 @@ No background page and no timers: it only listens to the video player's own even
 
 Source code (GPL-3.0): https://github.com/JiPaix/resume-playback-for-youtube
 
+## Screenshots (upload in this order, 1280×800)
+
+1. `docs/screenshots/1-hover-preview.png`: "Hover a thumbnail: YouTube plays a preview."
+2. `docs/screenshots/2-continues-from-preview.png`: "Click it: the full video continues from the preview instead of restarting at 0:00."
+3. `docs/screenshots/3-resumes-where-you-left-off.png`: "Close a video, open it again later: it continues where you left off."
+
 ## Other fields
 
 - Categories: Photos, Music & Videos

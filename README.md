@@ -81,6 +81,16 @@ restarts.
 
 Build the upload package: `./build.sh` → `dist/resume-playback-for-youtube-<version>.zip`.
 
+Re-record the demo GIFs: `tools/capture-demo.mjs` drives a headless Firefox over
+WebDriver BiDi (instructions at the top of the file), using Blender Foundation open
+movies (CC BY). Frames go to `docs/raw/` (ignored by git); GIF conversion:
+
+```sh
+ffmpeg -f concat -safe 0 -i docs/raw/preview/frames.txt \
+  -vf "fps=8,scale=640:-1:flags=lanczos,split[a][b];[a]palettegen=max_colors=96:stats_mode=diff[p];[b][p]paletteuse=dither=bayer:bayer_scale=5:diff_mode=rectangle" \
+  -loop 0 docs/demo-preview.gif
+```
+
 ## License
 
 [GPL-3.0](LICENSE)
