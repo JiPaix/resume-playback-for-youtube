@@ -3,7 +3,8 @@
 //   support_url, tags; tags from AMO's fixed list: GET /api/v5/addons/tags/),
 //   sent in one request and only when something differs (AMO rate-limits edits)
 // - icon (docs/icon-128.png), uploaded while the listing still has the default icon
-// - screenshots: only the missing ones (if the listing has N, N+1.. are uploaded)
+// - screenshots: matched by caption; missing ones uploaded, order fixed, and
+//   previews whose caption isn't in the list removed (the repo owns the gallery)
 // Needs AMO API credentials in the environment: WEB_EXT_API_KEY / WEB_EXT_API_SECRET,
 // or AMO_JWT_ISSUER / AMO_JWT_SECRET, e.g.
 //   node --env-file ~/.mozilla/AMO_JWT tools/amo-listing.mjs
@@ -21,11 +22,13 @@ const META = JSON.parse(readFileSync(root + 'docs/amo-metadata.json', 'utf8'));
 const TEXT_FIELDS = ['summary', 'description', 'homepage', 'support_url'];
 const ICON = 'docs/icon-128.png';
 
+// Order matters: step, result, step, result, settings. Matched on AMO by caption.
 const SCREENSHOTS = [
   ['docs/screenshots/1-hover-preview.png', 'Hover a thumbnail: YouTube plays a preview.'],
   ['docs/screenshots/2-continues-from-preview.png', 'Click it: the full video continues from the preview instead of restarting at 0:00.'],
-  ['docs/screenshots/3-resumes-where-you-left-off.png', 'Close a video, open it again later: it continues where you left off.'],
-  ['docs/screenshots/4-settings.png', 'One setting, in the toolbar button: how long a position is kept (7 to 90 days).'],
+  ['docs/screenshots/3-close-the-tab.png', 'Watching a video, then closing the tab at 0:48.'],
+  ['docs/screenshots/4-resumes-where-you-left-off.png', 'Close a video, open it again later: it continues where you left off.'],
+  ['docs/screenshots/5-settings.png', 'One setting, in the toolbar button: how long a position is kept (7 to 90 days).'],
 ];
 
 function jwt() {
@@ -95,20 +98,34 @@ if (!icon || /default/.test(icon)) {
   console.log('icon uploaded');
 }
 
-const existing = addon.previews?.length || 0;
-if (existing >= SCREENSHOTS.length) {
-  console.log(`${existing} screenshot(s) already on AMO.`);
-  process.exit(0);
+const captionOf = (p) => (typeof p.caption === 'string' ? p.caption : p.caption?.['en-US']) || '';
+const wanted = new Set(SCREENSHOTS.map(([, c]) => c));
+const previews = addon.previews || [];
+
+// Safety: if none of the existing captions match, the API format may have
+// changed; don't wipe the gallery, just add what's missing.
+const anyMatch = previews.some((p) => wanted.has(captionOf(p)));
+if (previews.length && !anyMatch) console.log('no existing caption matches; not removing anything');
+for (const p of anyMatch ? previews : []) {
+  if (!wanted.has(captionOf(p))) {
+    await api('DELETE', `${ADDON}previews/${p.id}/`);
+    console.log(`removed preview "${captionOf(p) || p.id}"`);
+  }
 }
 
 for (const [i, [file, caption]] of SCREENSHOTS.entries()) {
-  if (i < existing) continue; // already uploaded
+  const found = previews.find((p) => captionOf(p) === caption);
+  if (found) {
+    if (found.position !== i) {
+      await api('PATCH', `${ADDON}previews/${found.id}/`, { position: i });
+      console.log(`moved "${caption}" to position ${i}`);
+    }
+    continue;
+  }
   const form = new FormData();
   form.append('image', new Blob([readFileSync(root + file)], { type: 'image/png' }), basename(file));
   form.append('position', String(i));
   const preview = await api('POST', `${ADDON}previews/`, form);
-  await api('PATCH', `${ADDON}previews/${preview.id}/`, {
-    caption: { 'en-US': caption }, position: i,
-  });
+  await api('PATCH', `${ADDON}previews/${preview.id}/`, { caption: { 'en-US': caption }, position: i });
   console.log(`uploaded ${file}`);
 }
