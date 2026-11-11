@@ -8,7 +8,7 @@
     "en-US": "YouTube videos pick up where you left off, even when you click a thumbnail after its preview."
   },
   "description": {
-    "en-US": "- **After a hover preview:** on Firefox, YouTube restarts a video at 0:00 when you click it after watching its preview (Chrome keeps playing from the preview). With this add-on, it keeps playing from the preview.\n- **Videos you left halfway:** next time you open them, they continue where you stopped, even if you're not signed in.\n\nTimestamp links, ads, live streams and Shorts are left alone. One setting, in the toolbar button: how long positions are remembered (15 days by default).\n\n**Private:** positions are stored in your browser only. Nothing is sent anywhere."
+    "en-US": "Ever clicked a YouTube video and it started over from the beginning? This add-on fixes that.\n\n- **Watched a few seconds of a video by hovering over it?** Click it, and it keeps playing from there. (Chrome already does this. Firefox doesn't.)\n- **Stopped a video halfway?** Open it again later, and it picks up right where you stopped.\n\nYou can choose how long it remembers your videos: 15 days by default.\n\nNo account needed. Nothing leaves your computer."
   },
   "homepage": {
     "en-US": "https://github.com/JiPaix/resume-playback-for-youtube"
