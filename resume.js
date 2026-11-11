@@ -1,18 +1,15 @@
 'use strict';
-// Video Resumer (jipai): remembers where you stopped in a YouTube video and
-// resumes there next time. No polling: it only listens to the media events of
-// YouTube's main player (#movie_player), so hover previews and ads are ignored.
+// Remembers where you stopped in a YouTube video and resumes there next time;
+// when a video is opened from a hover preview, continues at the preview's
+// position. No polling: listens to media events only. Positions are saved for
+// YouTube's main player (#movie_player); the hover-preview player is only
+// watched to remember its position.
 
 (() => {
-  // Ignore the second injection on youtube.com/embed (matched by both entries).
-  if (window.__videoResumerLoaded) return;
-  window.__videoResumerLoaded = true;
-
   const SAVE_EVERY_MS = 5000;   // periodic save while playing
   const MIN_DURATION = 60;      // don't track videos shorter than this (s)
   const MIN_POSITION = 10;      // closer to the start than this = nothing to resume
   const END_MARGIN = 15;        // closer to the end than this = finished, forget it
-  const FORGET_AFTER_DAYS = 60; // drop entries not touched for this long
 
   const store = browser.storage.local;
   const key = (id) => 'v:' + id;
@@ -214,19 +211,6 @@
     if (document.visibilityState === 'hidden') save(true);
   });
 
-  // ---------- housekeeping: forget old entries, at most once a day ----------
-
-  (async () => {
-    try {
-      const { 'meta:lastCleanup': last = 0 } = await store.get('meta:lastCleanup');
-      const now = Date.now();
-      if (now - last < 24 * 3600 * 1000) return;
-      const all = await store.get(null);
-      const cutoff = now - FORGET_AFTER_DAYS * 24 * 3600 * 1000;
-      const old = Object.keys(all).filter((k) => k.startsWith('dbg:') // leftovers of the 1.0 diagnostics
-        || (k.startsWith('v:') && !(all[k].at > cutoff)));
-      if (old.length) await store.remove(old);
-      await store.set({ 'meta:lastCleanup': now });
-    } catch (e) { /* not critical */ }
-  })();
+  // Forget positions older than the retention period (at most once a day).
+  cleanupOldPositions().catch(() => {});
 })();

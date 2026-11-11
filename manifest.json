@@ -1,31 +1,63 @@
 {
   "manifest_version": 3,
-  "name": "Video Resumer (jipai)",
+  "name": "Resume Playback for YouTube",
   "version": "1.0.0",
-  "description": "Resumes YouTube videos where you left off. Event-driven, main player only, ignores hover previews and ads.",
+  "description": "Resumes YouTube videos where you left off, and continues from the thumbnail preview when you click one. Nothing leaves your browser.",
   "icons": {
     "48": "icon.svg",
     "96": "icon.svg"
   },
-  "permissions": ["storage"],
+  "permissions": [
+    "storage"
+  ],
   "content_scripts": [
     {
-      "matches": ["*://www.youtube.com/*", "*://m.youtube.com/*"],
-      "js": ["resume.js"],
-      "run_at": "document_start"
+      "matches": [
+        "*://www.youtube.com/*"
+      ],
+      "js": [
+        "cleanup.js",
+        "resume.js"
+      ],
+      "run_at": "document_start",
+      "exclude_matches": [
+        "*://www.youtube.com/embed/*"
+      ]
     },
     {
-      "matches": ["*://www.youtube-nocookie.com/embed/*", "*://www.youtube.com/embed/*"],
-      "js": ["resume.js"],
+      "matches": [
+        "*://www.youtube-nocookie.com/embed/*",
+        "*://www.youtube.com/embed/*"
+      ],
+      "js": [
+        "cleanup.js",
+        "resume.js"
+      ],
       "run_at": "document_start",
       "all_frames": true
     }
   ],
   "browser_specific_settings": {
     "gecko": {
-      "id": "video-resumer@jipai",
+      "id": "resume-playback-for-youtube@jipaix",
       "strict_min_version": "140.0",
-      "data_collection_permissions": { "required": ["none"] }
+      "data_collection_permissions": {
+        "required": [
+          "none"
+        ]
+      }
+    }
+  },
+  "options_ui": {
+    "page": "options.html"
+  },
+  "homepage_url": "https://github.com/JiPaix/resume-playback-for-youtube",
+  "action": {
+    "default_title": "Resume Playback for YouTube",
+    "default_popup": "options.html",
+    "default_icon": {
+      "16": "icon.svg",
+      "32": "icon.svg"
     }
   }
 }
