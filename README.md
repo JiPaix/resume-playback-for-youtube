@@ -1,0 +1,26 @@
+# Video Resumer (jipai)
+
+Firefox/Zen extension that resumes YouTube videos where you left off.
+Rewrite of the 2012 "Video Resumer" add-on, which tracked the first `<video>`
+on the page (often YouTube's hover preview) and polled/saved every second.
+
+How it works:
+- One content script, no background page, no polling: capture listeners for
+  the media events of YouTube's main player (`#movie_player`) only.
+- The video id comes from the player itself (`getVideoData()` via
+  `wrappedJSObject`), so in-app navigation can't save one video's time under another.
+- Resumes at the saved position when it is later than where YouTube starts
+  (start, `&t=` from a hover preview, or YouTube's own resume).
+- Ignores ads, live streams, Shorts, and videos shorter than 60 s.
+- Saves every 5 s while playing, and on pause, seek, tab hide, navigation.
+- Forgets a video when finished (last 15 s) or after 60 days unwatched.
+
+Tuning constants are at the top of `resume.js`.
+
+## Test without signing
+`about:debugging#/runtime/this-firefox` → *Load Temporary Add-on…* → pick
+`manifest.json`. Stays until Zen restarts. Disable the old Video Resumer while testing.
+
+## Install permanently
+Sign as unlisted on AMO (e.g. `web-ext sign --channel=unlisted`), then install the
+signed `.xpi`.
