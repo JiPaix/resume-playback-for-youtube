@@ -17,9 +17,27 @@
   const store = browser.storage.local;
   const key = (id) => 'v:' + id;
 
+  // Diagnostics: set to true to record what happens as "dbg:<time>:<msg>"
+  // storage keys (readable from the profile) and [VR] console lines.
+  const DEBUG = false;
+  const seenDbg = new Set();
+  function dbg(msg) {
+    if (!DEBUG || seenDbg.has(msg)) return;
+    seenDbg.add(msg);
+    console.log('[VR]', msg);
+    store.set({ ['dbg:' + Date.now() + ':' + msg.slice(0, 200)]: 1 }).catch(() => {});
+  }
+  const mainVideo = (v) => v instanceof HTMLVideoElement && v.closest('#movie_player');
+
   // The main video currently being tracked.
   // { id, video, ready (resume attempt finished), lastSave }
   let current = null;
+
+  // Last hover-preview position seen on a feed/channel page: { id, t, at }.
+  // The content script survives YouTube's in-app navigation, so this carries
+  // over to the watch page when the thumbnail is clicked.
+  let lastPreview = null;
+  const PREVIEW_HANDOFF_MS = 15000; // click must follow the preview within this
 
   // ---------- helpers ----------
 
@@ -96,12 +114,25 @@
       saved = (await store.get(key(id)))[key(id)];
     } catch (e) { /* storage error: just track from here */ }
     if (current !== entry) return; // navigated away meanwhile
+    dbg('track ' + id + ' saved=' + (saved ? saved.t : 'none') + ' cur=' + video.currentTime.toFixed(1)
+        + ' urlT=' + urlStartTime() + ' url=' + location.search.slice(0, 80));
     // Resume only when YouTube starts from the beginning. If it starts elsewhere
     // (hover-preview hand-off, a timestamp link, YouTube's own resume), keep that.
     const startAt = Math.max(video.currentTime, urlStartTime());
-    if (saved && Number.isFinite(video.duration) && startAt < MIN_POSITION
+    const preview = lastPreview;
+    lastPreview = null;
+    if (preview && preview.id === id && Date.now() - preview.at < PREVIEW_HANDOFF_MS) {
+      // Case 2: opened from a hover preview -> continue where the preview was,
+      // unless YouTube already did (then the positions match).
+      if (Math.abs(preview.t - startAt) > 2 && preview.t < video.duration - END_MARGIN) {
+        video.currentTime = preview.t;
+        dbg('from-preview ' + id + ' to=' + preview.t.toFixed(1));
+      }
+    } else if (saved && Number.isFinite(video.duration) && startAt < MIN_POSITION
         && saved.t < video.duration - END_MARGIN) {
+      // Case 1: YouTube starts from 0 -> resume where you left off.
       video.currentTime = saved.t;
+      dbg('resumed ' + id + ' to=' + saved.t);
     }
     entry.ready = true;
   }
@@ -118,6 +149,19 @@
     return true;
   }
 
+  if (DEBUG) {
+    for (const type of ['playing', 'seeking', 'loadstart']) {
+      document.addEventListener(type, (e) => {
+        if (!mainVideo(e.target)) return;
+        const pl = e.target.closest('#movie_player');
+        dbg(type + ' t=' + e.target.currentTime.toFixed(1) + ' ad=' + pl.classList.contains('ad-showing')
+            + ' api=' + playerVideoId(pl) + ' url=' + location.search.slice(0, 80) + ' @' + Date.now() % 100000);
+      }, true);
+    }
+    window.addEventListener('yt-navigate-start', () => dbg('nav-start ' + location.pathname + location.search.slice(0, 60)), true);
+    window.addEventListener('yt-navigate-finish', () => dbg('nav-finish ' + location.pathname + location.search.slice(0, 80)), true);
+  }
+
   document.addEventListener('playing', (e) => {
     const ctx = context(e.target);
     if (ctx && !(current && current.id === ctx.id && current.video === e.target)) {
@@ -125,9 +169,19 @@
     }
   }, true);
 
+  // Remember the hover preview's position (preview player is a separate one).
+  function notePreview(video) {
+    const pl = video instanceof HTMLVideoElement && video.closest('#inline-preview-player');
+    if (!pl) return false;
+    const id = playerVideoId(pl);
+    if (id && video.currentTime > 0) lastPreview = { id, t: video.currentTime, at: Date.now() };
+    dbg('preview id=' + id);
+    return true;
+  }
+
   document.addEventListener('timeupdate', (e) => {
     if (current && e.target === current.video) save(false);
-    else maybeStart(e.target);
+    else if (!notePreview(e.target)) maybeStart(e.target);
   }, true);
 
   for (const type of ['pause', 'seeked']) {
