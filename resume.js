@@ -13,7 +13,6 @@
   const MIN_POSITION = 10;      // closer to the start than this = nothing to resume
   const END_MARGIN = 15;        // closer to the end than this = finished, forget it
   const FORGET_AFTER_DAYS = 60; // drop entries not touched for this long
-  const PREVIEW_CONTAINERS = '#video-preview, ytd-video-preview, ytd-inline-player';
 
   const store = browser.storage.local;
   const key = (id) => 'v:' + id;
@@ -56,15 +55,18 @@
   // of the video in the URL; null for previews, ads, shorts, other pages.
   function context(video) {
     if (!(video instanceof HTMLVideoElement)) return null;
+    // Hover previews (#inline-preview-player) and the home-page ad
+    // (#masthead-player) are separate players, so they never match this.
     const player = video.closest('#movie_player');
-    if (!player || video.closest(PREVIEW_CONTAINERS)) return null;
+    if (!player) return null;
     if (player.classList.contains('ad-showing') || player.classList.contains('ad-interrupting')) return null;
     const urlId = urlVideoId();
     if (!urlId) return null;
     const id = playerVideoId(player) || urlId;
-    if (id !== urlId) return null; // player still on the previous video, or a preview
+    if (id !== urlId) return null; // player still on the previous video
     return { id, player };
   }
+
 
   // ---------- save / resume ----------
 
@@ -94,13 +96,12 @@
       saved = (await store.get(key(id)))[key(id)];
     } catch (e) { /* storage error: just track from here */ }
     if (current !== entry) return; // navigated away meanwhile
-    if (saved && Number.isFinite(video.duration)) {
-      // Resume if the saved spot is later than where YouTube starts us
-      // (start of video, a &t= from a hover preview, or YouTube's own resume).
-      const startAt = Math.max(video.currentTime, urlStartTime());
-      if (saved.t > startAt + 3 && saved.t < video.duration - END_MARGIN) {
-        video.currentTime = saved.t;
-      }
+    // Resume only when YouTube starts from the beginning. If it starts elsewhere
+    // (hover-preview hand-off, a timestamp link, YouTube's own resume), keep that.
+    const startAt = Math.max(video.currentTime, urlStartTime());
+    if (saved && Number.isFinite(video.duration) && startAt < MIN_POSITION
+        && saved.t < video.duration - END_MARGIN) {
+      video.currentTime = saved.t;
     }
     entry.ready = true;
   }
@@ -168,7 +169,8 @@
       if (now - last < 24 * 3600 * 1000) return;
       const all = await store.get(null);
       const cutoff = now - FORGET_AFTER_DAYS * 24 * 3600 * 1000;
-      const old = Object.keys(all).filter((k) => k.startsWith('v:') && !(all[k].at > cutoff));
+      const old = Object.keys(all).filter((k) => k.startsWith('dbg:') // leftovers of the 1.0 diagnostics
+        || (k.startsWith('v:') && !(all[k].at > cutoff)));
       if (old.length) await store.remove(old);
       await store.set({ 'meta:lastCleanup': now });
     } catch (e) { /* not critical */ }
