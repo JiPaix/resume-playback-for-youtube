@@ -1,8 +1,10 @@
-// Upload the listing screenshots to addons.mozilla.org: only the ones missing
-// (if the listing has N previews, screenshots N+1.. are uploaded). Needs AMO API
-// credentials in the environment: WEB_EXT_API_KEY / WEB_EXT_API_SECRET, or
-// AMO_JWT_ISSUER / AMO_JWT_SECRET, e.g.
-//   node --env-file ~/.mozilla/AMO_JWT tools/amo-previews.mjs
+// Keep the addons.mozilla.org listing's media in sync with the repo:
+// - tags (AMO's fixed list: GET /api/v5/addons/tags/)
+// - icon (docs/icon-128.png), uploaded while the listing still has the default icon
+// - screenshots: only the missing ones (if the listing has N, N+1.. are uploaded)
+// Needs AMO API credentials in the environment: WEB_EXT_API_KEY / WEB_EXT_API_SECRET,
+// or AMO_JWT_ISSUER / AMO_JWT_SECRET, e.g.
+//   node --env-file ~/.mozilla/AMO_JWT tools/amo-listing.mjs
 // Docs: https://mozilla.github.io/addons-server/topics/api/addons.html#preview-create
 
 import { createHmac, randomUUID } from 'node:crypto';
@@ -12,6 +14,9 @@ import { basename } from 'node:path';
 const API = 'https://addons.mozilla.org/api/v5';
 const root = new URL('..', import.meta.url).pathname;
 const id = JSON.parse(readFileSync(root + 'manifest.json', 'utf8')).browser_specific_settings.gecko.id;
+
+const TAGS = ['youtube', 'streaming'];
+const ICON = 'docs/icon-128.png';
 
 const SCREENSHOTS = [
   ['docs/screenshots/1-hover-preview.png', 'Hover a thumbnail: YouTube plays a preview.'],
@@ -51,10 +56,26 @@ async function api(method, path, body) {
   }
 }
 
-const addon = await api('GET', `/addons/addon/${encodeURIComponent(id)}/`);
+const ADDON = `/addons/addon/${encodeURIComponent(id)}/`;
+const addon = await api('GET', ADDON);
+
+if ([...(addon.tags || [])].sort().join() !== [...TAGS].sort().join()) {
+  await api('PATCH', ADDON, { tags: TAGS });
+  console.log(`tags set: ${TAGS.join(', ')}`);
+}
+
+// AMO serves a generic default icon until one is uploaded
+const icon = Object.values(addon.icons || {})[0] || addon.icon_url || '';
+if (!icon || /default/.test(icon)) {
+  const form = new FormData();
+  form.append('icon', new Blob([readFileSync(root + ICON)], { type: 'image/png' }), basename(ICON));
+  await api('PATCH', ADDON, form);
+  console.log('icon uploaded');
+}
+
 const existing = addon.previews?.length || 0;
 if (existing >= SCREENSHOTS.length) {
-  console.log(`${existing} screenshot(s) already on AMO; nothing to do.`);
+  console.log(`${existing} screenshot(s) already on AMO.`);
   process.exit(0);
 }
 
@@ -63,8 +84,8 @@ for (const [i, [file, caption]] of SCREENSHOTS.entries()) {
   const form = new FormData();
   form.append('image', new Blob([readFileSync(root + file)], { type: 'image/png' }), basename(file));
   form.append('position', String(i));
-  const preview = await api('POST', `/addons/addon/${encodeURIComponent(id)}/previews/`, form);
-  await api('PATCH', `/addons/addon/${encodeURIComponent(id)}/previews/${preview.id}/`, {
+  const preview = await api('POST', `${ADDON}previews/`, form);
+  await api('PATCH', `${ADDON}previews/${preview.id}/`, {
     caption: { 'en-US': caption }, position: i,
   });
   console.log(`uploaded ${file}`);

@@ -50,12 +50,12 @@ jobs:
           npx --yes web-ext@10 sign --source-dir dist/src --artifacts-dir dist/signed \
             --channel listed --amo-metadata docs/amo-metadata.json --approval-timeout 0
 
-      - name: Screenshots (uploads only the missing ones)
+      - name: Listing media (tags, icon, missing screenshots)
         continue-on-error: true
         env:
           WEB_EXT_API_KEY: ${{ secrets.AMO_JWT_ISSUER }}
           WEB_EXT_API_SECRET: ${{ secrets.AMO_JWT_SECRET }}
-        run: node tools/amo-previews.mjs
+        run: node tools/amo-listing.mjs
 
       - name: GitHub release
         env:
