@@ -2,78 +2,47 @@
 
 # Resume Playback for YouTube
 
-A Firefox add-on that makes YouTube **continue from the hover preview** when you
-click a video, like it does in Chrome, and **resume videos where you left off**.
+Ever hovered over a YouTube thumbnail, watched the preview for a bit, clicked
+it… and the video started over from the beginning? This Firefox add-on makes it
+keep playing from where the preview was. (Chrome already does this. Firefox
+doesn't.)
 
 <p align="center"><img src="docs/demo-preview.gif" alt="Hovering a thumbnail, clicking it, and the video continuing from the preview position" width="720"></p>
 
-## The problem it solves
-
-- **On Firefox, clicking a video you were previewing restarts it at 0:00.**
-  In Chrome, when you hover a thumbnail, let the preview play and click it, the
-  full video continues from the preview. In Firefox and Firefox-based browsers
-  (tested with Zen), YouTube throws that position away and starts over, even when
-  signed in. It only keeps it if you dragged the preview's seek bar.
-- **You close a video halfway, come back later, and it starts at 0:00.**
-  YouTube only resumes videos when you're signed in with watch history on.
-  Signed out, history paused, or in a private window, every video starts over.
-
-<details>
-<summary>How the Firefox/Chrome difference was checked</summary>
-
-November 2026, same Google account signed in, same add-ons in both browsers
-(uBlock Origin and SponsorBlock), previews played 6–8 seconds before clicking,
-videos not watched before:
-
-| Browser | Video opened at |
-|---|---|
-| Chrome | the preview's position, every time |
-| Zen (Firefox engine) | 0:00, every time (unless the preview was seeked manually) |
-
-YouTube changes often; if Firefox gets the same behavior as Chrome one day, the
-add-on simply has nothing to do there, and the resume feature still applies.
-</details>
-
-## What it does
-
-1. **Continue from the preview.** Hover a thumbnail on the home page, a channel
-   or search results, let the preview play, click it: the full video continues
-   from the preview's position instead of restarting. When YouTube already does
-   it by itself, the add-on does nothing.
-2. **Resume where you left off.** While you watch, your position is saved.
-   Open the same video again and it jumps to where you stopped.
+It also remembers videos you stopped halfway: open one again later, and it
+picks up right where you left off.
 
 <p align="center"><img src="docs/demo-resume.gif" alt="Closing a video halfway, reopening it, and playback resuming at the same spot" width="720"></p>
 
-It stays out of the way:
+You can choose how long it remembers your videos: 15 days by default. Click the
+add-on's button in the extensions menu to change it.
 
-- A link with a timestamp (`&t=…`) is respected. Your saved position is only
-  used when YouTube would start from the beginning.
-- Ads, live streams, Shorts and videos shorter than a minute are left alone.
-- A video you watched to the end is forgotten, so it starts fresh next time.
-- Also works in YouTube videos embedded on other sites.
+<p align="center"><img src="docs/options.png" alt="Settings: forget a video's position after 15 days without watching it" width="560"></p>
 
-## Settings
-
-One setting: how long a position is kept when you don't come back to the
-video. 7, 15 (default), 30, 60 or 90 days. Click the add-on's button in the
-extensions menu, or go to `about:addons` → Resume Playback for YouTube →
-Preferences.
-
-<p align="center"><img src="docs/options.png" alt="Settings page with a single 'Forget a video's position after 15 days' dropdown" width="560"></p>
-
-## Privacy
-
-- Only permission: `storage`. No access to your browsing outside YouTube.
-- What's stored, locally in your browser: the video ID, the position in seconds
-  and the date you last watched it. Nothing else.
-- Nothing is sent anywhere. No analytics, no accounts, no remote code.
+No account needed. Nothing leaves your computer.
 
 ## Install
 
-From addons.mozilla.org: *link coming once the listing is public.*
+[Get it on addons.mozilla.org](https://addons.mozilla.org/firefox/addon/resume-playback-for-youtube/)
+(the first version is waiting for Mozilla's review). Needs Firefox 142 or newer,
+or a browser based on it.
 
-Requires Firefox 142 or newer (or a browser based on it).
+## Details
+
+- **Firefox vs Chrome.** Checked in November 2026 with the same Google account
+  and the same add-ons in both browsers: after a 6–8 second preview, Chrome
+  opened the video at the preview's position every time; Zen (Firefox engine)
+  started at 0:00 every time, unless the preview's seek bar had been dragged.
+  If YouTube fixes this on Firefox one day, the add-on simply has nothing to do
+  there.
+- **Where you stopped:** YouTube only remembers it when you're signed in with
+  watch history on. This add-on remembers it either way.
+- **Left alone:** links with a timestamp (`&t=…`), ads, live streams, Shorts and
+  videos shorter than a minute. A video watched to the end is forgotten, so it
+  starts fresh next time. Also works in YouTube videos embedded on other sites.
+- **Privacy:** the only permission is `storage`. For each video it keeps the
+  video ID, the position and the date, in your browser. Nothing is sent
+  anywhere: no analytics, no account, no remote code.
 
 ## How it works
 
@@ -101,9 +70,9 @@ Build the upload package: `./build.sh` → `dist/resume-playback-for-youtube-<ve
 
 Release: bump `version` in `manifest.json`, commit, then push a tag `v<version>`.
 The `release` workflow lints, submits the version to addons.mozilla.org (listed),
-syncs the listing's tags, icon and missing screenshots (`tools/amo-listing.mjs`),
-and creates a GitHub release. The
-store listing text, category and license live in `docs/amo-metadata.json`. It needs
+syncs the listing's text, tags, icon and screenshots (`tools/amo-listing.mjs`),
+and creates a GitHub release. The store listing text, category and license live
+in `docs/amo-metadata.json`. It needs
 the repository secrets `AMO_JWT_ISSUER` and `AMO_JWT_SECRET` (AMO API key and secret).
 
 Re-record the demo GIFs: `tools/capture-demo.mjs` drives a headless Firefox over
