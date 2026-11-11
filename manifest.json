@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Resume Playback for YouTube",
   "version": "1.0.0",
-  "description": "Makes YouTube on Firefox continue from the hover preview when you click a video, like Chrome, and resumes videos where you left off.",
+  "description": "YouTube videos continue where you left off, and from the preview when you click a thumbnail.",
   "icons": {
     "48": "icon.svg",
     "96": "icon.svg"

@@ -5,7 +5,7 @@
     ]
   },
   "summary": {
-    "en-US": "On Firefox, YouTube restarts a video at 0:00 when you click it after a hover preview; Chrome continues from the preview. This fixes that, and resumes any video where you left off, even signed out. No data leaves your browser."
+    "en-US": "YouTube videos continue where you left off, and from the preview when you click a thumbnail."
   },
   "description": {
     "en-US": "**Two YouTube annoyances, fixed:**\n\n- **On Firefox, clicking a video you were previewing restarts it at 0:00.** In Chrome, when you hover a thumbnail, let the preview play and click it, the full video continues from the preview. In Firefox and Firefox-based browsers YouTube throws that position away, even when you're signed in. This add-on remembers the preview's position and continues from there, like Chrome.\n- **You close a video halfway and it starts over next time.** YouTube only remembers your position when you're signed in with watch history on. This add-on remembers it in your browser, signed in or not.\n\n**It stays out of your way**\n\n- Timestamp links (`&t=…`) are respected: your saved position is only used when a video would start from the beginning.\n- Ads, live streams, Shorts and videos under a minute are ignored.\n- Finished videos are forgotten, so they start fresh next time.\n- Works in YouTube videos embedded on other sites too.\n\n**One setting**\n\nHow long a position is kept if you don't come back to the video: 7, 15 (default), 30, 60 or 90 days. Click the add-on's button in the extensions menu to change it.\n\n**Privacy**\n\nOnly the \"storage\" permission. It saves the video ID, the position and the date, in your browser only. Nothing is sent anywhere: no analytics, no account, no remote code.\n\n**Lightweight**\n\nNo background page and no timers: it only listens to the video player's own events, and saves every few seconds while you watch."
@@ -19,8 +19,5 @@
   "tags": [
     "youtube",
     "streaming"
-  ],
-  "support_url": {
-    "en-US": "https://github.com/JiPaix/resume-playback-for-youtube/issues"
-  }
+  ]
 }

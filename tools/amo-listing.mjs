@@ -1,6 +1,6 @@
 // Keep the addons.mozilla.org listing in sync with the repo:
 // - text fields from docs/amo-metadata.json (summary, description, homepage,
-//   support_url, tags; tags from AMO's fixed list: GET /api/v5/addons/tags/),
+//   tags; tags from AMO's fixed list: GET /api/v5/addons/tags/),
 //   sent in one request and only when something differs (AMO rate-limits edits)
 // - icon (docs/icon-128.png), uploaded while the listing still has the default icon
 // - screenshots: matched by caption; missing ones uploaded, order fixed, and
@@ -19,7 +19,7 @@ const root = new URL('..', import.meta.url).pathname;
 const id = JSON.parse(readFileSync(root + 'manifest.json', 'utf8')).browser_specific_settings.gecko.id;
 
 const META = JSON.parse(readFileSync(root + 'docs/amo-metadata.json', 'utf8'));
-const TEXT_FIELDS = ['summary', 'description', 'homepage', 'support_url'];
+const TEXT_FIELDS = ['summary', 'description', 'homepage'];
 const ICON = 'docs/icon-128.png';
 
 // Order matters: step, result, step, result, settings. Matched on AMO by caption.
