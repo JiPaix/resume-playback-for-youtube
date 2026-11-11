@@ -2,28 +2,46 @@
 
 # Resume Playback for YouTube
 
-A Firefox add-on that makes YouTube **continue videos where you left off**,
-and **keep the position of the thumbnail preview** when you click a video you
-were previewing.
+A Firefox add-on that makes YouTube **continue from the hover preview** when you
+click a video, like it does in Chrome, and **resume videos where you left off**.
 
 <p align="center"><img src="docs/demo-preview.gif" alt="Hovering a thumbnail, clicking it, and the video continuing from the preview position" width="720"></p>
 
 ## The problem it solves
 
+- **On Firefox, clicking a video you were previewing restarts it at 0:00.**
+  In Chrome, when you hover a thumbnail, let the preview play and click it, the
+  full video continues from the preview. In Firefox and Firefox-based browsers
+  (tested with Zen), YouTube throws that position away and starts over, even when
+  signed in. It only keeps it if you dragged the preview's seek bar.
 - **You close a video halfway, come back later, and it starts at 0:00.**
   YouTube only resumes videos when you're signed in with watch history on.
   Signed out, history paused, or in a private window, every video starts over.
-- **You watch a few seconds of a hover preview, click it, and it starts at 0:00.**
-  YouTube is supposed to continue from the preview, but it only does it some of
-  the time.
+
+<details>
+<summary>How the Firefox/Chrome difference was checked</summary>
+
+November 2026, same Google account signed in, same add-ons in both browsers
+(uBlock Origin and SponsorBlock), previews played 6–8 seconds before clicking,
+videos not watched before:
+
+| Browser | Video opened at |
+|---|---|
+| Chrome | the preview's position, every time |
+| Zen (Firefox engine) | 0:00, every time (unless the preview was seeked manually) |
+
+YouTube changes often; if Firefox gets the same behavior as Chrome one day, the
+add-on simply has nothing to do there, and the resume feature still applies.
+</details>
 
 ## What it does
 
-1. **Resume where you left off.** While you watch, your position is saved.
-   Open the same video again and it jumps to where you stopped.
-2. **Continue from the preview.** Hover a thumbnail on the home page, a channel
+1. **Continue from the preview.** Hover a thumbnail on the home page, a channel
    or search results, let the preview play, click it: the full video continues
-   from the preview's position instead of restarting.
+   from the preview's position instead of restarting. When YouTube already does
+   it by itself, the add-on does nothing.
+2. **Resume where you left off.** While you watch, your position is saved.
+   Open the same video again and it jumps to where you stopped.
 
 <p align="center"><img src="docs/demo-resume.gif" alt="Closing a video halfway, reopening it, and playback resuming at the same spot" width="720"></p>
 

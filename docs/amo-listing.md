@@ -4,14 +4,14 @@ Paste into the listing fields on the AMO developer hub.
 
 ## Summary (max 250 characters)
 
-Continue YouTube videos where you left off, even signed out or with history paused. Click a video you were previewing on hover and it keeps going from the preview instead of restarting at 0:00. No data leaves your browser.
+On Firefox, YouTube restarts a video at 0:00 when you click it after a hover preview; Chrome continues from the preview. This fixes that, and resumes any video where you left off, even signed out. No data leaves your browser.
 
 ## Description (AMO allows basic HTML)
 
-<b>Two everyday YouTube annoyances, fixed:</b>
+<b>Two YouTube annoyances, fixed:</b>
 <ul>
+<li><b>On Firefox, clicking a video you were previewing restarts it at 0:00.</b> In Chrome, when you hover a thumbnail, let the preview play and click it, the full video continues from the preview. In Firefox and Firefox-based browsers YouTube throws that position away, even when you're signed in. This add-on remembers the preview's position and continues from there, like Chrome.</li>
 <li><b>You close a video halfway and it starts over next time.</b> YouTube only remembers your position when you're signed in with watch history on. This add-on remembers it in your browser, signed in or not.</li>
-<li><b>You watch a hover preview, click it, and it restarts at 0:00.</b> YouTube is supposed to continue from the preview but only does it some of the time. This add-on makes it consistent.</li>
 </ul>
 
 <b>It stays out of your way</b>
