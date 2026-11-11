@@ -99,6 +99,12 @@ restarts.
 
 Build the upload package: `./build.sh` → `dist/resume-playback-for-youtube-<version>.zip`.
 
+Release: bump `version` in `manifest.json`, commit, then push a tag `v<version>`.
+The `release` workflow lints, submits the version to addons.mozilla.org (listed),
+uploads the screenshots on the first release, and creates a GitHub release. The
+store listing text, category and license live in `docs/amo-metadata.json`. It needs
+the repository secrets `AMO_JWT_ISSUER` and `AMO_JWT_SECRET` (AMO API key and secret).
+
 Re-record the demo GIFs: `tools/capture-demo.mjs` drives a headless Firefox over
 WebDriver BiDi (instructions at the top of the file), using Blender Foundation open
 movies (CC BY). Frames go to `docs/raw/` (ignored by git); GIF conversion:

@@ -1,0 +1,23 @@
+name: lint
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  web-ext:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Syntax
+        run: for f in resume.js cleanup.js options.js tools/*.mjs; do node --check "$f"; done
+      - name: web-ext lint (the files that ship)
+        run: |
+          ./build.sh
+          mkdir -p dist/src
+          unzip -q dist/*.zip -d dist/src
+          npx --yes web-ext@10 lint --source-dir dist/src --warnings-as-errors
