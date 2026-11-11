@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Resume Playback for YouTube",
   "version": "1.0.0",
-  "description": "YouTube videos continue where you left off, and from the preview when you click a thumbnail.",
+  "description": "YouTube videos pick up where you left off, even when you click a thumbnail after its preview.",
   "icons": {
     "48": "icon.svg",
     "96": "icon.svg"
