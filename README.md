@@ -1,31 +1,37 @@
 <p align="center"><img src="icon.svg" width="96" alt=""></p>
 
-# Resume Playback for YouTube
+<h1 align="center">Resume Playback for YouTube</h1>
+
+<p align="center"><b>YouTube videos pick up where you left off,<br>even when you click a thumbnail after its preview.</b></p>
+
+<p align="center">
+  <a href="https://addons.mozilla.org/firefox/addon/resume-playback-for-youtube/">Get it on addons.mozilla.org</a>
+  &nbsp;·&nbsp; Firefox 142+ &nbsp;·&nbsp; No account needed &nbsp;·&nbsp; Nothing leaves your computer
+</p>
+
+<br>
+
+### Keeps playing from the preview
 
 Ever hovered over a YouTube thumbnail, watched the preview for a bit, clicked
-it… and the video started over from the beginning? This Firefox add-on makes it
-keep playing from where the preview was. (Chrome already does this. Firefox
-doesn't.)
+it… and the video started over from the beginning? With this add-on, it keeps
+playing from where the preview was. (Chrome already does this. Firefox doesn't.)
 
 <p align="center"><img src="docs/demo-preview.gif" alt="Hovering a thumbnail, clicking it, and the video continuing from the preview position" width="720"></p>
 
-It also remembers videos you stopped halfway: open one again later, and it
-picks up right where you left off.
+### Picks up where you stopped
+
+Stopped a video halfway? Open it again later, and it picks up right where you
+left off.
 
 <p align="center"><img src="docs/demo-resume.gif" alt="Closing a video halfway, reopening it, and playback resuming at the same spot" width="720"></p>
 
-You can choose how long it remembers your videos: 15 days by default. Click the
+### One setting
+
+You choose how long it remembers your videos: 15 days by default. Click the
 add-on's button in the extensions menu to change it.
 
 <p align="center"><img src="docs/options.png" alt="Settings: forget a video's position after 15 days without watching it" width="560"></p>
-
-No account needed. Nothing leaves your computer.
-
-## Install
-
-[Get it on addons.mozilla.org](https://addons.mozilla.org/firefox/addon/resume-playback-for-youtube/)
-(the first version is waiting for Mozilla's review). Needs Firefox 142 or newer,
-or a browser based on it.
 
 ## Details
 
