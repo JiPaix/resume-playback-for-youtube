@@ -1,5 +1,7 @@
-// Keep the addons.mozilla.org listing's media in sync with the repo:
-// - tags (AMO's fixed list: GET /api/v5/addons/tags/)
+// Keep the addons.mozilla.org listing in sync with the repo:
+// - text fields from docs/amo-metadata.json (summary, description, homepage,
+//   support_url, tags; tags from AMO's fixed list: GET /api/v5/addons/tags/),
+//   sent in one request and only when something differs (AMO rate-limits edits)
 // - icon (docs/icon-128.png), uploaded while the listing still has the default icon
 // - screenshots: only the missing ones (if the listing has N, N+1.. are uploaded)
 // Needs AMO API credentials in the environment: WEB_EXT_API_KEY / WEB_EXT_API_SECRET,
@@ -15,7 +17,8 @@ const API = 'https://addons.mozilla.org/api/v5';
 const root = new URL('..', import.meta.url).pathname;
 const id = JSON.parse(readFileSync(root + 'manifest.json', 'utf8')).browser_specific_settings.gecko.id;
 
-const TAGS = ['youtube', 'streaming'];
+const META = JSON.parse(readFileSync(root + 'docs/amo-metadata.json', 'utf8'));
+const TEXT_FIELDS = ['summary', 'description', 'homepage', 'support_url'];
 const ICON = 'docs/icon-128.png';
 
 const SCREENSHOTS = [
@@ -59,9 +62,27 @@ async function api(method, path, body) {
 const ADDON = `/addons/addon/${encodeURIComponent(id)}/`;
 const addon = await api('GET', ADDON);
 
-if ([...(addon.tags || [])].sort().join() !== [...TAGS].sort().join()) {
-  await api('PATCH', ADDON, { tags: TAGS });
-  console.log(`tags set: ${TAGS.join(', ')}`);
+// AMO returns translated fields as { locale: text } (homepage/support_url as { url: {...} })
+const current = (f) => {
+  const v = addon[f];
+  return v && typeof v === 'object' && 'url' in v ? v.url : v;
+};
+const patch = {};
+for (const f of TEXT_FIELDS) {
+  if (META[f] && JSON.stringify(current(f)?.['en-US'] ?? null) !== JSON.stringify(META[f]['en-US'])) patch[f] = META[f];
+}
+if ([...(addon.tags || [])].sort().join() !== [...(META.tags || [])].sort().join()) patch.tags = META.tags;
+if (Object.keys(patch).length) {
+  try {
+    await api('PATCH', ADDON, patch);
+  } catch (e) {
+    // support_url isn't documented as editable through the API: retry without it
+    if (!patch.support_url || !/ 400 /.test(e.message)) throw e;
+    console.log('support_url refused by the API; set "Support Website" in the developer hub');
+    delete patch.support_url;
+    if (Object.keys(patch).length) await api('PATCH', ADDON, patch);
+  }
+  console.log(`listing updated: ${Object.keys(patch).join(', ')}`);
 }
 
 // AMO serves a generic default icon until one is uploaded
