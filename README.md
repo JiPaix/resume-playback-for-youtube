@@ -5,8 +5,12 @@
 <p align="center"><b>YouTube videos pick up where you left off,<br>even when you click a thumbnail after its preview.</b></p>
 
 <p align="center">
-  <a href="https://addons.mozilla.org/firefox/addon/resume-playback-for-youtube/">Get it on addons.mozilla.org</a>
-  &nbsp;·&nbsp; Firefox 142+ &nbsp;·&nbsp; No account needed &nbsp;·&nbsp; Nothing leaves your computer
+  <a href="https://addons.mozilla.org/firefox/addon/resume-playback-for-youtube/"><img src="https://blog.mozilla.org/addons/files/2020/04/get-the-addon-fx-apr-2020.svg" alt="Get the add-on for Firefox" height="58"></a>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Firefox-142%2B-FF7139?logo=firefoxbrowser&logoColor=white" alt="Firefox 142+">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-GPL--3.0-blue" alt="License: GPL-3.0"></a>
 </p>
 
 <br>
