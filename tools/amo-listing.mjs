@@ -67,7 +67,7 @@ async function api(method, path, body) {
 const ADDON = `/addons/addon/${encodeURIComponent(id)}/`;
 const addon = await api('GET', ADDON);
 
-// AMO returns translated fields as { locale: text } (homepage/support_url as { url: {...} })
+// AMO returns translated fields as { locale: text } (homepage as { url: {...} })
 const current = (f) => {
   const v = addon[f];
   return v && typeof v === 'object' && 'url' in v ? v.url : v;
@@ -78,15 +78,7 @@ for (const f of TEXT_FIELDS) {
 }
 if ([...(addon.tags || [])].sort().join() !== [...(META.tags || [])].sort().join()) patch.tags = META.tags;
 if (Object.keys(patch).length) {
-  try {
-    await api('PATCH', ADDON, patch);
-  } catch (e) {
-    // support_url isn't documented as editable through the API: retry without it
-    if (!patch.support_url || !/ 400 /.test(e.message)) throw e;
-    console.log('support_url refused by the API; set "Support Website" in the developer hub');
-    delete patch.support_url;
-    if (Object.keys(patch).length) await api('PATCH', ADDON, patch);
-  }
+  await api('PATCH', ADDON, patch);
   console.log(`listing updated: ${Object.keys(patch).join(', ')}`);
 }
 
