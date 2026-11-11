@@ -73,7 +73,7 @@ Preferences.
 
 From addons.mozilla.org: *link coming once the listing is public.*
 
-Requires Firefox 140 or newer (or a browser based on it).
+Requires Firefox 142 or newer (or a browser based on it).
 
 ## How it works
 
